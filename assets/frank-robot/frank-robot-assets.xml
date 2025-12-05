@@ -1,0 +1,8 @@
+<mujoco>
+    <mesh name="frank_robot_link_0_mesh" file="frank_robot_link_0.stl"/>
+    <mesh name="frank_robot_link_1_mesh" file="frank_robot_link_1.stl"/>
+    <mesh name="frank_robot_link_2_mesh" file="frank_robot_link_2.stl"/>
+    <mesh name="frank_robot_link_3_mesh" file="frank_robot_link_3.stl"/>
+    <mesh name="frank_robot_link_4_mesh" file="frank_robot_link_4.stl"/>
+    <material name="frank_robot_grey" rgba="0.700 0.700 0.700 1.000"/>
+</mujoco>

@@ -1,0 +1,6 @@
+<mujoco>
+    <motor name="frank_robot_joint_1" ctrllimited="true" ctrlrange="-3000.0 3000.0" joint="frank_robot_joint_1"/>
+    <motor name="frank_robot_joint_2" ctrllimited="true" ctrlrange="-3000.0 3000.0" joint="frank_robot_joint_2"/>
+    <motor name="frank_robot_joint_3" ctrllimited="true" ctrlrange="-3000.0 3000.0" joint="frank_robot_joint_3"/>
+    <motor name="frank_robot_joint_4" ctrllimited="true" ctrlrange="-3000.0 3000.0" joint="frank_robot_joint_4"/>
+</mujoco>
