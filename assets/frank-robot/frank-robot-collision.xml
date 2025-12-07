@@ -1,16 +1,6 @@
 <?xml version="1.0" ?>
 
 <mujoco>
-    <default>
-        <default class="visual">
-            <geom contype="0" conaffinity="0"/>
-        </default>
-
-        <default class="collision">
-            <geom contype="1" conaffinity="1" friction=".6 0.005 0.0001"/>
-        </default>
-    </default>
-
     <!--  -->
 
     <body name="frank_robot_link_0" euler="1.57079632679 0 0">
