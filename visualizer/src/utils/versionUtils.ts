@@ -47,7 +47,6 @@ export async function getDatasetInfo(repoId: string): Promise<DatasetInfo> {
 
     const response = await fetch(url, {
       method: "GET",
-      cache: "no-store",
       signal: controller.signal
     });
 
