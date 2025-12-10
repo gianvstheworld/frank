@@ -113,13 +113,25 @@ function HomeInner() {
     loadData();
   }, []);
 
+  // Filter episodes based on search
+  const filteredEpisodes = episodes.filter(ep =>
+    ep.task.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    ep.id.toString().includes(searchQuery)
+  );
+
+  // Paginate
+  const totalPages = Math.ceil(filteredEpisodes.length / episodesPerPage);
+  const startIdx = (currentPage - 1) * episodesPerPage;
+  const paginatedEpisodes = filteredEpisodes.slice(startIdx, startIdx + episodesPerPage);
+
   return (
     <div className="min-h-screen">
       {/* Header */}
       <SharedHeader />
 
-      {/* Hero Section */}
+      {/* Main Content */}
       <main className="max-w-6xl mx-auto px-6 py-12">
+        {/* Hero Section */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white mb-4">
             Dynamic Performance Under Load Variation
@@ -127,6 +139,24 @@ function HomeInner() {
           <p className="text-lg text-slate-400 max-w-2xl mx-auto">
             Analyze robot dynamics with different external forces applied to the end-effector.
             Compare tracking performance, torques, and errors across load conditions.
+          </p>
+        </div>
+
+        {/* Hero Video */}
+        <div className="mb-12 max-w-3xl mx-auto">
+          <div className="rounded-xl overflow-hidden shadow-2xl shadow-sky-500/10 border border-slate-700">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full"
+            >
+              <source src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/robot-demo.mp4`} type="video/mp4" />
+            </video>
+          </div>
+          <p className="text-center text-slate-500 text-sm mt-3">
+            FRANK robot performing sinusoidal trajectory tracking
           </p>
         </div>
 
@@ -155,62 +185,49 @@ function HomeInner() {
 
         {loading ? (
           <div className="text-center text-slate-400 py-12">Loading episodes...</div>
-        ) : (() => {
-          // Filter episodes based on search
-          const filteredEpisodes = episodes.filter(ep =>
-            ep.task.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            ep.id.toString().includes(searchQuery)
-          );
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+              {paginatedEpisodes.map((episode, idx) => (
+                <EpisodeCard
+                  key={episode.id}
+                  episode={episode}
+                  color={EPISODE_COLORS[(startIdx + idx) % EPISODE_COLORS.length]}
+                  onClick={() => router.push(`/local/frank/episode_${episode.id}`)}
+                />
+              ))}
+            </div>
 
-          // Paginate
-          const totalPages = Math.ceil(filteredEpisodes.length / episodesPerPage);
-          const startIdx = (currentPage - 1) * episodesPerPage;
-          const paginatedEpisodes = filteredEpisodes.slice(startIdx, startIdx + episodesPerPage);
-
-          return (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                {paginatedEpisodes.map((episode, idx) => (
-                  <EpisodeCard
-                    key={episode.id}
-                    episode={episode}
-                    color={EPISODE_COLORS[(startIdx + idx) % EPISODE_COLORS.length]}
-                    onClick={() => router.push(`/local/frank/episode_${episode.id}`)}
-                  />
-                ))}
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 mb-12">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-lg text-sm ${currentPage === 1 ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "bg-slate-700 text-white hover:bg-slate-600"}`}
+                >
+                  ← Previous
+                </button>
+                <span className="text-slate-400 text-sm">
+                  Page {currentPage} of {totalPages} ({filteredEpisodes.length} episodes)
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-lg text-sm ${currentPage === totalPages ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "bg-slate-700 text-white hover:bg-slate-600"}`}
+                >
+                  Next →
+                </button>
               </div>
+            )}
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-4 mb-12">
-                  <button
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className={`px-4 py-2 rounded-lg text-sm ${currentPage === 1 ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "bg-slate-700 text-white hover:bg-slate-600"}`}
-                  >
-                    ← Previous
-                  </button>
-                  <span className="text-slate-400 text-sm">
-                    Page {currentPage} of {totalPages} ({filteredEpisodes.length} episodes)
-                  </span>
-                  <button
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    className={`px-4 py-2 rounded-lg text-sm ${currentPage === totalPages ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "bg-slate-700 text-white hover:bg-slate-600"}`}
-                  >
-                    Next →
-                  </button>
-                </div>
-              )}
-
-              {filteredEpisodes.length === 0 && (
-                <div className="text-center text-slate-400 py-8 mb-12">
-                  No episodes match "{searchQuery}"
-                </div>
-              )}
-            </>
-          );
-        })()}
+            {filteredEpisodes.length === 0 && (
+              <div className="text-center text-slate-400 py-8 mb-12">
+                No episodes match "{searchQuery}"
+              </div>
+            )}
+          </>
+        )}
 
         {/* Features */}
         <div className="mt-16 text-center">
@@ -261,52 +278,41 @@ function InfoCard({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-function EpisodeCard({
-  episode,
-  color,
-  onClick,
-}: {
+function EpisodeCard({ episode, color, onClick }: {
   episode: { id: number; task: string; frames: number };
   color: string;
   onClick: () => void;
 }) {
+  // Extract force level from task string for prominent display
+  const forceMatch = episode.task.match(/(\d+)N/);
+  const forceLabel = forceMatch ? `${forceMatch[1]}N` : `Ep ${episode.id}`;
+
   return (
     <button
       onClick={onClick}
-      className="group relative bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 
-                 hover:border-sky-500/50 hover:bg-slate-700/50 transition-all duration-200
-                 text-left cursor-pointer"
+      className="group bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-left transition-all hover:bg-slate-800 hover:border-slate-600 hover:shadow-lg"
     >
-      <div
-        className="absolute top-0 left-0 w-full h-1 rounded-t-xl"
-        style={{ backgroundColor: color }}
-      />
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-2xl font-bold text-white">Episode {episode.id}</span>
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+          style={{ backgroundColor: color }}
+        >
+          {forceLabel}
+        </div>
+        <span className="text-slate-400 text-sm">Episode {episode.id}</span>
       </div>
-      <p className="text-sm text-slate-400 mb-2">{episode.task}</p>
-      <p className="text-xs text-slate-500">{episode.frames.toLocaleString()} frames</p>
-      <div className="mt-4 text-sky-400 text-sm group-hover:text-sky-300 transition-colors">
-        View Episode →
-      </div>
+      <p className="text-slate-300 text-sm line-clamp-2">{episode.task}</p>
+      <div className="mt-3 text-xs text-slate-500">{episode.frames.toLocaleString()} frames</div>
     </button>
   );
 }
 
-function FeatureCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: string;
-  title: string;
-  description: string;
-}) {
+function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
   return (
-    <div className="bg-slate-800/30 rounded-lg p-6 border border-slate-700/50">
+    <div className="bg-slate-800/30 rounded-lg p-6 border border-slate-700/30">
       <div className="text-3xl mb-3">{icon}</div>
-      <h4 className="text-lg font-semibold text-white mb-2">{title}</h4>
-      <p className="text-sm text-slate-400">{description}</p>
+      <h4 className="text-white font-semibold mb-2">{title}</h4>
+      <p className="text-slate-400 text-sm">{description}</p>
     </div>
   );
 }
