@@ -2,6 +2,8 @@
 
 This project simulates the Frank robot using MuJoCo and Python.
 
+> https://gianvstheworld.github.io/frank/
+
 ## Installation
 
 1. Ensure you have the MuJoCo 2.10 binaries installed in `~/.mujoco/mujoco210`. Follow: https://gist.github.com/saratrajput/60b1310fe9d9df664f9983b38b50d5da
